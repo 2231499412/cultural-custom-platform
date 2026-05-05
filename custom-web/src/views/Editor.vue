@@ -293,7 +293,7 @@ const shapeMap = { rect: '长方形', circle: '圆形', roundRect: '圆角矩形
 const shapeLabel = computed(() => shapeMap[template.value.shape] || '长方形')
 
 const materialTabs = [
-  { key: 'background', label: '底图' },
+  { key: 'background', label: '边框' },
   { key: 'border', label: '边框' },
   { key: 'decoration', label: '装饰' },
   { key: 'text', label: '文字' }
@@ -378,7 +378,7 @@ async function addMaterialLayer(mat) {
       name: mat.name,
       x: 0, y: 0,
       width: cw, height: ch,
-      zIndex: layers.length
+      zIndex: 9999
     })
   } else {
     // 获取素材真实尺寸，按比例适配画布
@@ -516,9 +516,9 @@ function moveLayer(id, direction) {
 
 function reindexZ() {
   layers.forEach((l, i) => { l.zIndex = i })
-  // 底图始终保持最顶层
+  // 边框图层始终保持最顶层
   const bg = layers.find(l => l.type === 'background')
-  if (bg) bg.zIndex = layers.length
+  if (bg) bg.zIndex = 9999
 }
 
 function deselectAll() {
@@ -679,7 +679,7 @@ function layerTypeIcon(type) {
 function layerName(layer) {
   if (layer.name) return layer.name
   if (layer.type === 'text') return layer.content?.slice(0, 8) || '文字'
-  return layer.type === 'background' ? '背景' : layer.type === 'image' ? '图片' : '素材'
+  return layer.type === 'background' ? '边框' : layer.type === 'image' ? '图片' : '素材'
 }
 
 // 保存草稿
