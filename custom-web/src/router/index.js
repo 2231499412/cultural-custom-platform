@@ -10,6 +10,7 @@ const routes = [
       { path: 'template/:id', name: 'TemplateDetail', component: () => import('../views/TemplateDetail.vue') },
       { path: 'editor/:id', name: 'Editor', component: () => import('../views/Editor.vue') },
       { path: 'orders', name: 'OrderList', component: () => import('../views/OrderList.vue') },
+      { path: 'order-confirm', name: 'OrderConfirm', component: () => import('../views/OrderConfirm.vue') },
       { path: 'profile', name: 'Profile', component: () => import('../views/Profile.vue') }
     ]
   },
