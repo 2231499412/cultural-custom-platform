@@ -1,0 +1,29 @@
+{
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "造物记" } },
+    { "path": "pages/templates/list", "style": { "navigationBarTitleText": "模板列表" } },
+    { "path": "pages/templates/detail", "style": { "navigationBarTitleText": "模板详情" } },
+    { "path": "pages/editor/index", "style": { "navigationBarTitleText": "定制编辑" } },
+    { "path": "pages/order/confirm", "style": { "navigationBarTitleText": "确认订单" } },
+    { "path": "pages/order/list", "style": { "navigationBarTitleText": "我的订单" } },
+    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "个人中心" } },
+    { "path": "pages/login/index", "style": { "navigationBarTitleText": "登录" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "造物记",
+    "navigationBarBackgroundColor": "#E8722A",
+    "backgroundColor": "#FFF8F0"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#E8722A",
+    "backgroundColor": "#fff",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-active.png" },
+      { "pagePath": "pages/order/list", "text": "订单", "iconPath": "static/tab/order.png", "selectedIconPath": "static/tab/order-active.png" },
+      { "pagePath": "pages/profile/index", "text": "我的", "iconPath": "static/tab/user.png", "selectedIconPath": "static/tab/user-active.png" }
+    ]
+  }
+}
