@@ -91,9 +91,9 @@
               v-for="layer in layers"
               :key="layer.id"
               class="canvas-layer"
-              :class="{ active: selectedLayerId === layer.id, dragging: draggingId === layer.id }"
+              :class="{ active: selectedLayerId === layer.id, dragging: draggingId === layer.id, 'layer-background': layer.type === 'background' }"
               :style="layerCanvasStyle(layer)"
-              @mousedown.stop="startDrag($event, layer)"
+              @mousedown.stop="layer.type !== 'background' ? startDrag($event, layer) : null"
             >
               <!-- 背景/图片/装饰/边框图层 -->
               <img v-if="layer.type !== 'text'" :src="layer.src" draggable="false" :style="layerImgStyle(layer)" />
@@ -1019,6 +1019,10 @@ onMounted(async () => {
 .canvas-layer.active {
   outline: 2px solid var(--c-orange);
   outline-offset: 1px;
+}
+
+.layer-background {
+  pointer-events: none;
 }
 
 .canvas-layer.dragging {
