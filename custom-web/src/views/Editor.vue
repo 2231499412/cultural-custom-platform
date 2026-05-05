@@ -283,14 +283,34 @@ function nextId() {
   return 'layer_' + Date.now() + '_' + (++layerCounter)
 }
 
+// 获取图片真实尺寸
+function getImageSize(url) {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight })
+    img.onerror = () => resolve({ width: 100, height: 100 })
+    img.src = url
+  })
+}
+
+// 按比例缩放图片尺寸，使其适配画布
+function fitToCanvas(natW, natH, canvasW, canvasH, maxRatio) {
+  const maxW = canvasW * maxRatio
+  const maxH = canvasH * maxRatio
+  const scale = Math.min(maxW / natW, maxH / natH, 1)
+  return {
+    width: Math.round(natW * scale),
+    height: Math.round(natH * scale)
+  }
+}
+
 // 添加素材图层
-function addMaterialLayer(mat) {
+async function addMaterialLayer(mat) {
   const struct = parseStructure()
-  const w = struct.width || 280
-  const h = struct.height || 280
+  const cw = struct.width || 280
+  const ch = struct.height || 280
 
   if (mat.type === 'background') {
-    // 背景图：全画布，z-index 最低
     const existing = layers.find(l => l.type === 'background')
     if (existing) {
       existing.src = mat.url
@@ -303,21 +323,23 @@ function addMaterialLayer(mat) {
       src: mat.url,
       name: mat.name,
       x: 0, y: 0,
-      width: w, height: h,
+      width: cw, height: ch,
       zIndex: 0
     })
   } else {
-    // 边框/装饰：添加到画布中心
-    const size = mat.type === 'border' ? Math.min(w, h) * 0.8 : Math.min(w, h) * 0.4
+    // 获取素材真实尺寸，按比例适配画布
+    const nat = await getImageSize(mat.url)
+    const maxRatio = mat.type === 'border' ? 0.9 : 0.5
+    const fitted = fitToCanvas(nat.width, nat.height, cw, ch, maxRatio)
     layers.push({
       id: nextId(),
       type: mat.type,
       src: mat.url,
       name: mat.name,
-      x: Math.round((w - size) / 2),
-      y: Math.round((h - size) / 2),
-      width: Math.round(size),
-      height: Math.round(size),
+      x: Math.round((cw - fitted.width) / 2),
+      y: Math.round((ch - fitted.height) / 2),
+      width: fitted.width,
+      height: fitted.height,
       zIndex: layers.length
     })
   }
@@ -355,18 +377,19 @@ async function handleUserUpload(event) {
   const url = await uploadFile(file)
   if (url) {
     const struct = parseStructure()
-    const w = struct.width || 280
-    const h = struct.height || 280
-    const size = Math.min(w, h) * 0.5
+    const cw = struct.width || 280
+    const ch = struct.height || 280
+    const nat = await getImageSize(url)
+    const fitted = fitToCanvas(nat.width, nat.height, cw, ch, 0.6)
     layers.push({
       id: nextId(),
       type: 'image',
       src: url,
       name: '我的图片',
-      x: Math.round((w - size) / 2),
-      y: Math.round((h - size) / 2),
-      width: Math.round(size),
-      height: Math.round(size),
+      x: Math.round((cw - fitted.width) / 2),
+      y: Math.round((ch - fitted.height) / 2),
+      width: fitted.width,
+      height: fitted.height,
       zIndex: layers.length
     })
     selectedLayerId.value = layers[layers.length - 1]?.id
