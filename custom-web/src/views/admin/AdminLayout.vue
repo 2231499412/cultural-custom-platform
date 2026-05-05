@@ -17,6 +17,10 @@
           <el-icon><Picture /></el-icon>
           <span>模板管理</span>
         </el-menu-item>
+        <el-menu-item index="/admin/materials">
+          <el-icon><Grid /></el-icon>
+          <span>素材管理</span>
+        </el-menu-item>
         <el-menu-item index="/admin/orders">
           <el-icon><List /></el-icon>
           <span>订单管理</span>

@@ -13,10 +13,10 @@
               <p>{{ categoryMap[template.category] }}</p>
             </div>
             <div class="preview-data">
-              <div v-for="(value, key) in customData" :key="key" class="data-row">
-                <span class="data-key">{{ key }}</span>
-                <span class="data-value" v-if="value && !value.startsWith('/uploads')">{{ value }}</span>
-                <img v-else-if="value" :src="value" class="data-img" />
+              <div v-for="(layer, index) in previewLayers" :key="index" class="data-row">
+                <span class="data-key">{{ layerTypeName(layer) }}</span>
+                <span class="data-value" v-if="layer.type === 'text'">{{ layer.content }}</span>
+                <img v-else-if="layer.src" :src="layer.src" class="data-img" />
               </div>
             </div>
           </div>
@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getTemplateDetail } from '../api/modules/template'
@@ -89,6 +89,18 @@ const customData = ref({})
 const customizationId = ref(null)
 
 const categoryMap = { ticket: '票根', acrylic: '亚克力立牌', keychain: '钥匙扣', badge: '徽章' }
+
+const previewLayers = computed(() => {
+  if (customData.value && customData.value.layers) {
+    return customData.value.layers
+  }
+  return []
+})
+
+function layerTypeName(layer) {
+  const map = { background: '背景', border: '边框', decoration: '装饰', text: '文字', image: '图片' }
+  return layer.name || map[layer.type] || layer.type
+}
 
 const form = reactive({
   receiverName: '',

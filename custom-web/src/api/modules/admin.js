@@ -42,3 +42,16 @@ export function adminShipOrder(id, remark) {
 export function adminCompleteOrder(id) {
   return request.put(`/admin/order/${id}/complete`)
 }
+
+// 素材管理
+export function adminGetMaterials(params) {
+  return request.get('/admin/material/list', { params })
+}
+
+export function adminSaveMaterial(data) {
+  return request.post('/admin/material/save', data)
+}
+
+export function adminDeleteMaterial(id) {
+  return request.delete(`/admin/material/${id}`)
+}

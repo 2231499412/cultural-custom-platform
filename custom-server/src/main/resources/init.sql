@@ -24,9 +24,10 @@ CREATE TABLE IF NOT EXISTS `template` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '模板ID',
     `name` VARCHAR(100) NOT NULL COMMENT '模板名称',
     `category` VARCHAR(30) NOT NULL COMMENT '分类: ticket-票根 acrylic-亚克力 keychain-钥匙扣 badge-徽章',
+    `shape` VARCHAR(20) DEFAULT 'rect' COMMENT '画布形状: rect-长方形 circle-圆形 roundRect-圆角矩形',
     `description` VARCHAR(500) DEFAULT '' COMMENT '描述',
     `preview_url` VARCHAR(255) NOT NULL COMMENT '预览图URL',
-    `structure_json` TEXT NOT NULL COMMENT '模板结构JSON(图层、可编辑区域等)',
+    `structure_json` TEXT NOT NULL COMMENT '模板结构JSON(画布尺寸等)',
     `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '基础价格',
     `status` TINYINT NOT NULL DEFAULT 1 COMMENT '状态: 0-下架 1-上架',
     `sort_order` INT NOT NULL DEFAULT 0 COMMENT '排序',
@@ -99,19 +100,19 @@ CREATE TABLE IF NOT EXISTS `production_status` (
 -- ========== 种子数据 ==========
 
 -- 模板数据
-INSERT INTO `template` (`name`, `category`, `description`, `preview_url`, `structure_json`, `price`, `status`, `sort_order`) VALUES
-('演唱会票根', 'ticket', '深蓝星空风格，适合演唱会、音乐现场等演出类纪念票根', '/uploads/templates/ticket-concert.png', '{"width":280,"height":560}', 29.90, 1, 1),
-('音乐节票根', 'ticket', '活力橙红风格，适合音乐节、户外演出等大型活动纪念', '/uploads/templates/ticket-festival.png', '{"width":280,"height":560}', 29.90, 1, 2),
-('体育赛事票根', 'ticket', '深邃绿金风格，适合足球、篮球等体育赛事纪念', '/uploads/templates/ticket-sports.png', '{"width":280,"height":560}', 29.90, 1, 3),
-('电竞赛事票根', 'ticket', '赛博霓虹风格，适合电竞比赛、游戏赛事等纪念票根', '/uploads/templates/ticket-esports.png', '{"width":280,"height":560}', 29.90, 1, 4),
-('应援亚克力立牌', 'acrylic', '粉紫渐变风格，适合追星应援、偶像周边定制', '/uploads/templates/acrylic-cheer.png', '{"width":300,"height":400}', 49.90, 1, 5),
-('毕业纪念亚克力立牌', 'acrylic', '温暖校园风格，毕业季专属纪念摆件', '/uploads/templates/acrylic-graduation.png', '{"width":300,"height":400}', 49.90, 1, 6),
-('宠物纪念亚克力立牌', 'acrylic', '温馨可爱风格，为你的毛孩子定制专属摆件', '/uploads/templates/acrylic-pet.png', '{"width":300,"height":400}', 49.90, 1, 7),
-('头像钥匙扣', 'keychain', '圆形简约风格，上传头像即可定制随身小物', '/uploads/templates/keychain-avatar.png', '{"width":200,"height":200}', 19.90, 1, 8),
-('情侣钥匙扣套装', 'keychain', '甜蜜粉色风格，一对两个，情侣闺蜜必备', '/uploads/templates/keychain-couple.png', '{"width":200,"height":200}', 35.90, 1, 9),
-('赛事纪念徽章', 'badge', '金属质感风格，体育赛事、活动收藏级纪念品', '/uploads/templates/badge-event.png', '{"width":180,"height":180}', 15.90, 1, 10),
-('个性签名徽章', 'badge', '文艺简约风格，写上你的专属个性宣言', '/uploads/templates/badge-motto.png', '{"width":180,"height":180}', 15.90, 1, 11),
-('毕业纪念徽章', 'badge', '青春校园风格，毕业季限定收藏纪念品', '/uploads/templates/badge-school.png', '{"width":180,"height":180}', 15.90, 1, 12);
+INSERT INTO `template` (`name`, `category`, `shape`, `description`, `preview_url`, `structure_json`, `price`, `status`, `sort_order`) VALUES
+('演唱会票根', 'ticket', 'rect', '深蓝星空风格，适合演唱会、音乐现场等演出类纪念票根', '/uploads/templates/ticket-concert.png', '{"width":280,"height":560}', 29.90, 1, 1),
+('音乐节票根', 'ticket', 'rect', '活力橙红风格，适合音乐节、户外演出等大型活动纪念', '/uploads/templates/ticket-festival.png', '{"width":280,"height":560}', 29.90, 1, 2),
+('体育赛事票根', 'ticket', 'rect', '深邃绿金风格，适合足球、篮球等体育赛事纪念', '/uploads/templates/ticket-sports.png', '{"width":280,"height":560}', 29.90, 1, 3),
+('电竞赛事票根', 'ticket', 'rect', '赛博霓虹风格，适合电竞比赛、游戏赛事等纪念票根', '/uploads/templates/ticket-esports.png', '{"width":280,"height":560}', 29.90, 1, 4),
+('应援亚克力立牌', 'acrylic', 'rect', '粉紫渐变风格，适合追星应援、偶像周边定制', '/uploads/templates/acrylic-cheer.png', '{"width":300,"height":400}', 49.90, 1, 5),
+('毕业纪念亚克力立牌', 'acrylic', 'rect', '温暖校园风格，毕业季专属纪念摆件', '/uploads/templates/acrylic-graduation.png', '{"width":300,"height":400}', 49.90, 1, 6),
+('宠物纪念亚克力立牌', 'acrylic', 'rect', '温馨可爱风格，为你的毛孩子定制专属摆件', '/uploads/templates/acrylic-pet.png', '{"width":300,"height":400}', 49.90, 1, 7),
+('头像钥匙扣', 'keychain', 'circle', '圆形简约风格，上传头像即可定制随身小物', '/uploads/templates/keychain-avatar.png', '{"width":260,"height":260}', 19.90, 1, 8),
+('情侣钥匙扣套装', 'keychain', 'circle', '甜蜜粉色风格，一对两个，情侣闺蜜必备', '/uploads/templates/keychain-couple.png', '{"width":260,"height":260}', 35.90, 1, 9),
+('赛事纪念徽章', 'badge', 'circle', '金属质感风格，体育赛事、活动收藏级纪念品', '/uploads/templates/badge-event.png', '{"width":240,"height":240}', 15.90, 1, 10),
+('个性签名徽章', 'badge', 'circle', '文艺简约风格，写上你的专属个性宣言', '/uploads/templates/badge-motto.png', '{"width":240,"height":240}', 15.90, 1, 11),
+('毕业纪念徽章', 'badge', 'circle', '青春校园风格，毕业季限定收藏纪念品', '/uploads/templates/badge-school.png', '{"width":240,"height":240}', 15.90, 1, 12);
 
 -- 素材数据
 INSERT INTO `material` (`name`, `type`, `category`, `url`, `sort_order`) VALUES

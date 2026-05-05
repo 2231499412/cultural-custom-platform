@@ -17,6 +17,8 @@ public class Template {
 
     private String category;
 
+    private String shape;
+
     private String description;
 
     private String previewUrl;
