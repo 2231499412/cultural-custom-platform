@@ -1,0 +1,24 @@
+# Backend
+custom-server/target/
+custom-server/.idea/
+custom-server/*.iml
+custom-server/.mvn/
+custom-server/mvnw
+custom-server/mvnw.cmd
+custom-server/uploads/
+
+# Frontend
+custom-web/node_modules/
+custom-web/dist/
+custom-web/.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.idea/
+.vscode/
+*.iml
