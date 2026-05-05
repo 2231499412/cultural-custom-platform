@@ -96,7 +96,7 @@
               @mousedown.stop="layer.type !== 'background' ? startDrag($event, layer) : null"
             >
               <!-- 背景/图片/装饰/边框图层 -->
-              <img v-if="layer.type !== 'text'" :src="layer.src" draggable="false" :style="layerImgStyle(layer)" />
+              <img v-if="layer.type !== 'text'" :src="layer.src" draggable="false" />
               <!-- 文字图层 -->
               <div v-else class="layer-text-content" :style="layerTextStyle(layer)">
                 {{ layer.content }}
@@ -631,11 +631,12 @@ function startResize(e, layer, corner) {
 // 画布上的图层样式
 function layerCanvasStyle(layer) {
   const s = canvasScale.value
+  const imgScale = layer.type !== 'background' ? (layer.scale || 100) / 100 : 1
   const style = {
     left: (layer.x || 0) * s + 'px',
     top: (layer.y || 0) * s + 'px',
-    width: (layer.width || 100) * s + 'px',
-    height: (layer.height || 100) * s + 'px',
+    width: (layer.width || 100) * s * imgScale + 'px',
+    height: (layer.height || 100) * s * imgScale + 'px',
     zIndex: layer.zIndex || 0
   }
   // 非背景图层应用旋转和翻转变换
@@ -648,17 +649,6 @@ function layerCanvasStyle(layer) {
     }
   }
   return style
-}
-
-// 图片元素样式（应用缩放）
-function layerImgStyle(layer) {
-  if (layer.type === 'background') return {}
-  const scale = (layer.scale || 100) / 100
-  return {
-    width: (layer.width || 100) * scale + 'px',
-    height: (layer.height || 100) * scale + 'px',
-    objectFit: 'contain'
-  }
 }
 
 function layerTextStyle(layer) {
