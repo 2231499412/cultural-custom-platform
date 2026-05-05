@@ -44,7 +44,6 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
             try {
                 if (!jwtUtil.isTokenExpired(token)) {
-                    // token 有效，将用户信息存入 request attribute
                     request.setAttribute("userId", jwtUtil.getUserId(token));
                     request.setAttribute("username", jwtUtil.getUsername(token));
                     request.setAttribute("role", jwtUtil.getRole(token));
@@ -52,7 +51,6 @@ public class JwtFilter extends OncePerRequestFilter {
                     return;
                 }
             } catch (Exception ignored) {
-                // token 解析失败，走下面的 401
             }
         }
 
@@ -63,15 +61,10 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicPath(String path) {
-        // 登录注册
         if (path.startsWith("/auth/")) return true;
-        // 模板查询（只读）
         if (path.startsWith("/template/")) return true;
-        // 素材列表（只读）
         if (path.startsWith("/material/list")) return true;
-        // 文件上传（编辑器需要）
         if (path.startsWith("/file/upload")) return true;
-        // Swagger
         if (path.startsWith("/swagger") || path.startsWith("/v3/api-docs")) return true;
         return false;
     }
