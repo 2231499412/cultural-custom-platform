@@ -96,7 +96,7 @@
               @mousedown.stop="startDrag($event, layer)"
             >
               <!-- 背景/图片/装饰/边框图层 -->
-              <img v-if="layer.type !== 'text'" :src="layer.src" draggable="false" />
+              <img v-if="layer.type !== 'text'" :src="layer.src" draggable="false" :style="layerImgStyle(layer)" />
               <!-- 文字图层 -->
               <div v-else class="layer-text-content" :style="layerTextStyle(layer)">
                 {{ layer.content }}
@@ -165,6 +165,60 @@
                 <input type="number" v-model.number="selectedLayer.height" @change="clampLayer(selectedLayer)" min="20" />
               </div>
             </div>
+
+            <!-- 图片编辑控件（仅 image 类型） -->
+            <template v-if="selectedLayer.type === 'image'">
+              <div class="image-controls">
+                <div class="control-row">
+                  <label>缩放 <span class="control-val">{{ selectedLayer.scale || 100 }}%</span></label>
+                  <el-slider
+                    :model-value="selectedLayer.scale || 100"
+                    @update:model-value="selectedLayer.scale = $event"
+                    :min="10" :max="500" :step="1"
+                    :show-tooltip="false"
+                    size="small"
+                  />
+                </div>
+                <div class="control-row">
+                  <label>旋转 <span class="control-val">{{ selectedLayer.rotation || 0 }}°</span></label>
+                  <el-slider
+                    :model-value="selectedLayer.rotation || 0"
+                    @update:model-value="selectedLayer.rotation = $event"
+                    :min="0" :max="360" :step="1"
+                    :show-tooltip="false"
+                    size="small"
+                  />
+                </div>
+              </div>
+
+              <div class="action-grid">
+                <button class="action-btn" @click="maximizeHeight(selectedLayer)" title="高度最大化">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M4 6l4-4 4 4M4 10l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  高度最大化
+                </button>
+                <button class="action-btn" @click="maximizeWidth(selectedLayer)" title="水平最大化">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M6 4l-4 4 4 4M10 4l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  水平最大化
+                </button>
+                <button class="action-btn" @click="selectedLayer.flipX = !selectedLayer.flipX" :class="{ active: selectedLayer.flipX }" title="水平翻转">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M6 4L3 8l3 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 4l3 4-3 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  水平翻转
+                </button>
+                <button class="action-btn" @click="selectedLayer.flipY = !selectedLayer.flipY" :class="{ active: selectedLayer.flipY }" title="垂直翻转">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M4 6L8 3l4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 10l4 3 4-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  垂直翻转
+                </button>
+                <button class="action-btn" @click="rotateCCW(selectedLayer)" title="逆时针旋转">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8a5 5 0 019.5-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M12.5 3.5V6H10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10a5 5 0 007 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  逆时针
+                </button>
+                <button class="action-btn" @click="rotateCW(selectedLayer)" title="顺时针旋转">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 8a5 5 0 00-9.5-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M3.5 3.5V6H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 10a5 5 0 01-7 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  顺时针
+                </button>
+              </div>
+            </template>
+
             <button class="btn-replace" @click="replaceImage(selectedLayer)">
               替换图片
             </button>
@@ -324,7 +378,7 @@ async function addMaterialLayer(mat) {
       name: mat.name,
       x: 0, y: 0,
       width: cw, height: ch,
-      zIndex: 0
+      zIndex: layers.length
     })
   } else {
     // 获取素材真实尺寸，按比例适配画布
@@ -340,7 +394,11 @@ async function addMaterialLayer(mat) {
       y: Math.round((ch - fitted.height) / 2),
       width: fitted.width,
       height: fitted.height,
-      zIndex: layers.length
+      zIndex: layers.length,
+      scale: 100,
+      rotation: 0,
+      flipX: false,
+      flipY: false
     })
   }
   selectedLayerId.value = layers[layers.length - 1]?.id
@@ -390,7 +448,11 @@ async function handleUserUpload(event) {
       y: Math.round((ch - fitted.height) / 2),
       width: fitted.width,
       height: fitted.height,
-      zIndex: layers.length
+      zIndex: layers.length,
+      scale: 100,
+      rotation: 0,
+      flipX: false,
+      flipY: false
     })
     selectedLayerId.value = layers[layers.length - 1]?.id
     ElMessage.success('图片已添加到画布')
@@ -454,6 +516,9 @@ function moveLayer(id, direction) {
 
 function reindexZ() {
   layers.forEach((l, i) => { l.zIndex = i })
+  // 底图始终保持最顶层
+  const bg = layers.find(l => l.type === 'background')
+  if (bg) bg.zIndex = layers.length
 }
 
 function deselectAll() {
@@ -463,6 +528,35 @@ function deselectAll() {
 function clampLayer(layer) {
   layer.width = Math.max(20, layer.width || 20)
   layer.height = Math.max(20, layer.height || 20)
+}
+
+// 图片编辑操作
+function maximizeHeight(layer) {
+  const struct = parseStructure()
+  const canvasH = struct.height || 280
+  const scale = (layer.scale || 100) / 100
+  const currentVisualH = layer.height * scale
+  if (currentVisualH <= 0) return
+  const newScale = Math.round((canvasH / layer.height) * 100)
+  layer.scale = Math.min(500, Math.max(10, newScale))
+}
+
+function maximizeWidth(layer) {
+  const struct = parseStructure()
+  const canvasW = struct.width || 280
+  const scale = (layer.scale || 100) / 100
+  const currentVisualW = layer.width * scale
+  if (currentVisualW <= 0) return
+  const newScale = Math.round((canvasW / layer.width) * 100)
+  layer.scale = Math.min(500, Math.max(10, newScale))
+}
+
+function rotateCCW(layer) {
+  layer.rotation = ((layer.rotation || 0) - 90 + 360) % 360
+}
+
+function rotateCW(layer) {
+  layer.rotation = ((layer.rotation || 0) + 90) % 360
 }
 
 // 拖动
@@ -537,12 +631,33 @@ function startResize(e, layer, corner) {
 // 画布上的图层样式
 function layerCanvasStyle(layer) {
   const s = canvasScale.value
-  return {
+  const style = {
     left: (layer.x || 0) * s + 'px',
     top: (layer.y || 0) * s + 'px',
     width: (layer.width || 100) * s + 'px',
     height: (layer.height || 100) * s + 'px',
     zIndex: layer.zIndex || 0
+  }
+  // 非背景图层应用旋转和翻转变换
+  if (layer.type !== 'background') {
+    const rotation = layer.rotation || 0
+    const flipX = layer.flipX ? -1 : 1
+    const flipY = layer.flipY ? -1 : 1
+    if (rotation || layer.flipX || layer.flipY) {
+      style.transform = `rotate(${rotation}deg) scaleX(${flipX}) scaleY(${flipY})`
+    }
+  }
+  return style
+}
+
+// 图片元素样式（应用缩放）
+function layerImgStyle(layer) {
+  if (layer.type === 'background') return {}
+  const scale = (layer.scale || 100) / 100
+  return {
+    width: (layer.width || 100) * scale + 'px',
+    height: (layer.height || 100) * scale + 'px',
+    objectFit: 'contain'
   }
 }
 
@@ -1202,6 +1317,78 @@ onMounted(async () => {
 
 .btn-replace:hover {
   background: rgba(232, 114, 42, 0.12);
+}
+
+/* ---- Image Controls ---- */
+.image-controls {
+  margin-bottom: 12px;
+}
+
+.control-row {
+  margin-bottom: 10px;
+}
+
+.control-row label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-bottom: 4px;
+}
+
+.control-val {
+  font-weight: 600;
+  color: var(--c-orange);
+  font-size: 11px;
+}
+
+.control-row :deep(.el-slider) {
+  --el-slider-main-bg-color: var(--c-orange);
+  --el-slider-runway-bg-color: var(--c-cream-dark, #f0ebe5);
+  margin-top: 2px;
+}
+
+.control-row :deep(.el-slider__button) {
+  width: 14px;
+  height: 14px;
+  border-color: var(--c-orange);
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  font-size: 10px;
+  color: var(--c-text-secondary);
+  background: var(--c-cream);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--f-body);
+  line-height: 1;
+}
+
+.action-btn:hover {
+  border-color: var(--c-orange);
+  color: var(--c-orange);
+  background: rgba(232, 114, 42, 0.06);
+}
+
+.action-btn.active {
+  border-color: var(--c-orange);
+  color: var(--c-orange);
+  background: rgba(232, 114, 42, 0.1);
 }
 
 .layer-tip {

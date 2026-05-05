@@ -7,7 +7,6 @@ import com.custom.entity.OrderInfo;
 import com.custom.entity.ProductionStatus;
 import com.custom.mapper.ProductionStatusMapper;
 import com.custom.service.OrderService;
-import com.custom.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,12 +24,11 @@ public class OrderController {
 
     private final OrderService orderService;
     private final ProductionStatusMapper productionStatusMapper;
-    private final JwtUtil jwtUtil;
 
     @PostMapping("/create")
     @Operation(summary = "创建订单")
     public Result<String> create(@Valid @RequestBody OrderCreateDTO dto, HttpServletRequest request) {
-        Long userId = getUserId(request);
+        Long userId = (Long) request.getAttribute("userId");
         String orderNo = orderService.createOrder(userId, dto);
         return Result.success(orderNo);
     }
@@ -42,14 +40,14 @@ public class OrderController {
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size,
             HttpServletRequest request) {
-        Long userId = getUserId(request);
+        Long userId = (Long) request.getAttribute("userId");
         return Result.success(orderService.getMyOrders(userId, status, current, size));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "订单详情")
     public Result<OrderInfo> detail(@PathVariable Long id, HttpServletRequest request) {
-        Long userId = getUserId(request);
+        Long userId = (Long) request.getAttribute("userId");
         return Result.success(orderService.getOrderDetail(id, userId));
     }
 
@@ -67,16 +65,8 @@ public class OrderController {
     @PutMapping("/{id}/cancel")
     @Operation(summary = "取消订单")
     public Result<Void> cancel(@PathVariable Long id, HttpServletRequest request) {
-        Long userId = getUserId(request);
+        Long userId = (Long) request.getAttribute("userId");
         orderService.cancelOrder(id, userId);
         return Result.success();
-    }
-
-    private Long getUserId(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-        return jwtUtil.getUserId(token);
     }
 }
