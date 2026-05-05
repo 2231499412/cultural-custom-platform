@@ -65,6 +65,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (path.startsWith("/template/")) return true;
         if (path.startsWith("/material/list")) return true;
         if (path.startsWith("/file/upload")) return true;
+        if (path.startsWith("/uploads/")) return true;
         if (path.startsWith("/swagger") || path.startsWith("/v3/api-docs")) return true;
         return false;
     }
