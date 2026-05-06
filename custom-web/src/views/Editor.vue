@@ -677,13 +677,15 @@ async function saveDraft() {
   saving.value = true
   try {
     const customData = { layers: layers.map(l => ({ ...l })) }
-    await saveCustomization({
+    const res = await saveCustomization({
       templateId: template.value.id,
       customDataJson: JSON.stringify(customData)
     })
     ElMessage.success('草稿已保存')
+    return res.data
   } catch (e) {
     ElMessage.error('保存失败')
+    return null
   } finally {
     saving.value = false
   }
@@ -691,11 +693,13 @@ async function saveDraft() {
 
 // 提交订单
 function submitOrder() {
-  saveDraft().then(() => {
-    router.push({
-      path: '/order-confirm',
-      query: { templateId: template.value.id }
-    })
+  saveDraft().then((customizationId) => {
+    if (customizationId) {
+      router.push({
+        path: '/order-confirm',
+        query: { templateId: template.value.id, customizationId }
+      })
+    }
   })
 }
 

@@ -52,7 +52,9 @@ const loadOrders = async () => {
     if (currentStatus.value) params.status = currentStatus.value
     const res = await getOrderList(params)
     orders.value = res.data.records
-  } catch (e) {} finally {
+  } catch (e) {
+    console.error('加载订单失败:', e)
+  } finally {
     loading.value = false
   }
 }
