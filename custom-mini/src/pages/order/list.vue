@@ -9,18 +9,29 @@
     </view>
 
     <!-- 订单列表 -->
-    <view class="order-card card" v-for="order in orders" :key="order.id">
+    <view class="order-card card" v-for="order in orders" :key="order.id" @click="goDetail(order.id)">
       <view class="order-header">
         <text class="order-no">{{ order.orderNo }}</text>
-        <text class="order-status">{{ statusMap[order.status] }}</text>
+        <text class="order-status" :class="'s-' + order.status">{{ statusMap[order.status] }}</text>
       </view>
       <view class="order-body">
-        <text class="order-price">¥{{ order.totalPrice }}</text>
-        <text class="order-qty">x{{ order.quantity }}</text>
+        <view class="order-product">
+          <view class="product-img">
+            <text class="img-placeholder">📦</text>
+          </view>
+          <view class="product-info">
+            <text class="product-name">文创定制产品</text>
+            <text class="product-time">{{ order.createTime }}</text>
+          </view>
+        </view>
+        <view class="order-right">
+          <text class="order-price">¥{{ order.totalPrice }}</text>
+          <text class="order-qty">x{{ order.quantity }}</text>
+        </view>
       </view>
       <view class="order-footer">
-        <text class="order-time">{{ order.createTime }}</text>
-        <button v-if="order.status === 'pending'" class="cancel-btn" @click="cancel(order.id)">取消</button>
+        <text class="footer-hint">查看详情 ></text>
+        <button v-if="order.status === 'pending'" class="cancel-btn" @click.stop="cancel(order.id)">取消订单</button>
       </view>
     </view>
 
@@ -62,6 +73,10 @@ const loadOrders = async () => {
 const switchStatus = (status) => {
   currentStatus.value = status
   loadOrders()
+}
+
+const goDetail = (id) => {
+  uni.navigateTo({ url: `/pages/order/detail?id=${id}` })
 }
 
 const cancel = async (id) => {
@@ -127,36 +142,91 @@ const goHome = () => {
 
 .order-status {
   font-size: 26rpx;
-  color: #E8722A;
   font-weight: 500;
 }
+
+.s-pending { color: #E8722A; }
+.s-paid { color: #3498db; }
+.s-shipped { color: #27ae60; }
+.s-completed { color: #95a5a6; }
+.s-cancelled { color: #999; }
 
 .order-body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16rpx 0;
+  padding: 20rpx 0;
+}
+
+.order-product {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 1;
+}
+
+.product-img {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 12rpx;
+  background: #f5f0eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.img-placeholder {
+  font-size: 40rpx;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #2D1810;
+  display: block;
+}
+
+.product-time {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 6rpx;
+  display: block;
+}
+
+.order-right {
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .order-price {
   font-size: 32rpx;
   font-weight: 700;
   color: #2D1810;
+  display: block;
 }
 
 .order-qty {
-  font-size: 26rpx;
+  font-size: 24rpx;
   color: #999;
+  display: block;
+  text-align: right;
 }
 
 .order-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 16rpx;
+  border-top: 2rpx solid #f0ebe5;
 }
 
-.order-time {
-  font-size: 22rpx;
+.footer-hint {
+  font-size: 24rpx;
   color: #999;
 }
 
