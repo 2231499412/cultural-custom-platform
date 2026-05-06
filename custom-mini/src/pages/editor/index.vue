@@ -27,7 +27,8 @@
     <!-- 操作栏 -->
     <view class="action-bar">
       <button class="btn-outline" @click="chooseImage">上传图片</button>
-      <button class="btn-primary" @click="save">保存定制</button>
+      <button class="btn-outline" @click="save">保存草稿</button>
+      <button class="btn-primary" @click="submitOrder">提交订单</button>
     </view>
   </view>
 </template>
@@ -128,7 +129,7 @@ const onRotationChange = (e) => {
 
 const save = async () => {
   try {
-    await saveCustomization({
+    const res = await saveCustomization({
       templateId: template.value.id,
       customDataJson: JSON.stringify({
         userImage: userImage.value,
@@ -139,8 +140,19 @@ const save = async () => {
       })
     })
     uni.showToast({ title: '保存成功', icon: 'success' })
+    return res.data
   } catch (e) {
     uni.showToast({ title: '请先登录', icon: 'none' })
+    return null
+  }
+}
+
+const submitOrder = async () => {
+  const customizationId = await save()
+  if (customizationId) {
+    uni.navigateTo({
+      url: `/pages/order/confirm?customizationId=${customizationId}&templateId=${template.value.id}&price=${template.value.price}`
+    })
   }
 }
 </script>
