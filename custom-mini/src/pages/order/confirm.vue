@@ -78,6 +78,7 @@ const submit = async () => {
     const res = await createOrder({
       templateId: parseInt(templateId.value),
       customizationId: customizationId.value ? parseInt(customizationId.value) : null,
+      totalPrice: price.value * form.value.quantity,
       ...form.value
     })
     uni.showToast({ title: '下单成功', icon: 'success' })
